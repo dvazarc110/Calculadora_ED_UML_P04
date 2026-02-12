@@ -19,6 +19,11 @@ public class Analizador {
     private TipoComando comando;
     private String mensajeError;
 
+    public Analizador(String entrada, double lastResult) {
+    	this.entrada = entrada;
+    	analizar(entrada, lastResult);
+    }
+    
     /**
      * Analiza la entrada del usuario.
      *
