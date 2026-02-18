@@ -18,10 +18,10 @@ public class Analizador {
     private List<TipoOperador> operadores;
     private TipoComando comando;
     private String mensajeError;
+    private ResultadoAnalisis analisis;
 
-    public Analizador(String entrada, double lastResult) {
+    public Analizador(String entrada) {
     	this.entrada = entrada;
-    	analizar(entrada, lastResult);
     }
     
     /**
@@ -138,8 +138,10 @@ public class Analizador {
         if (this.numeros.size() != this.operadores.size() + 1) {
             return error("Estructura inválida: faltan operandos u operadores.");
         }
-
-        return new ResultadoAnalisis(this.comando, this.numeros, this.operadores, null);
+        
+        this.analisis = new ResultadoAnalisis(this.comando, this.numeros, this.operadores, null);
+        
+        return this.analisis;
     }
 
     /**

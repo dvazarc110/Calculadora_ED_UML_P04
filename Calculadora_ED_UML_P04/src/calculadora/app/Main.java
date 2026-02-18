@@ -1,55 +1,80 @@
 package calculadora.app;
 
-import calculadora.dominio.Historial;
+import java.util.ArrayList;
+import java.util.List;
+import calculadora.dominio.*;
 
 public class Main {
 
     public static void main(String[] args) {
-
-        //TODO: Crear una instancia de la clase Consola
+    	
         ConsoleInput consola = new ConsoleInput();
-        //TODO: Crear una instancia de la clase Menu
         Menu menu = new Menu(consola);
-        //TODO: Crear una instancia de la clase Agenda
         Historial historial = new Historial();
-        //TODO: Crear una instancia de la clase GestorAgenda
+        ResultadoAnalisis result;
+        List<TipoOperador> ope = new ArrayList<>();
+        TipoOperador calc;
+        ArrayList<Double> group = new ArrayList<>();
         Analizador analyzer;
-        //TODO: Declarar una variable input
-        String input;
+        String input, add;
+        double resultado;
+        int cont; 
+        int order = 1;
         
-        menu.mostrar();
-        input = menu.leerInput();
         
-        analyzer = new Analizador(input, historial.getResultadoActual());
-        
-        /*//TODO: Declarar una variable opcion
-        int opcion;
-        
-        //TODO: Realizar un bucle do-while para gestionar el menú de la aplicación (6 opciones, 0 para Salir)
-        //      Utilizad los métodos de las instancias que habéis generado previamente y la variable opcion
         do {
-            menu.mostrar();
-            opcion = menu.leerOpcion();
-
-            switch (opcion) {
-            	case 1 -> gestorAgenda.agregarContacto(consola, agenda);
-            	case 2 -> {
-            		gestorAgenda.listarContactos();
-                    consola.leerTexto("\nPulsa Enter para volver al menú...");
-            	}
-            	case 3 -> {
-            		gestorAgenda.buscarContactos();
-                    consola.leerTexto("\nPulsa Enter para volver al menú...");
-            	}
-            	case 4 -> gestorAgenda.borrarContactos();
-            	case 5 -> gestorAgenda.agregarTelefono();
-            	case 0 -> consola.escribirLinea("¡Hasta luego!");
-            	default -> consola.escribirLinea("Opción no válida, inténtalo de nuevo.");
-            }
-
-        } while (opcion != 0);*/
-        
-        //TODO: Cerrar el recurso Scanner asociado a la entrada estándar (ver métodos de la clase Consola).
-        consola.cerrar();
+        	add = order + ".   ";
+        	resultado = 0;
+        	cont = 0;
+	        menu.mostrar();
+	        input = menu.leerInput();
+	        analyzer = new Analizador(input);	        
+	        result = analyzer.analizar(input, historial.getResultadoActual());
+	        
+	        if((result.comando()).name() == "CALCULO") {
+	        	ope = result.operadores();	
+	        	
+	        	for(Double nums : result.numeros()) {
+	        		if (cont == 0) {
+	        			resultado = nums;
+	        			add = add.concat(String.valueOf(resultado) + " ");
+	        		}else if (cont > 0) {
+	        			group.add(resultado);
+	        			group.add(nums);
+	        			calc = ope.get(cont-1);
+	        			add = add.concat((calc.getDescription() + " ").concat(String.valueOf(nums) + " "));
+	        			resultado = calc.operate(group);
+	        			group.clear();
+	        		}
+	        		cont++;
+	        	}
+	
+	        	System.out.printf("Resultado: %.2f \n", resultado);
+	        	historial.setResultadoActual(resultado);
+	        	add = add.concat("= ".concat(String.valueOf(resultado)));
+	        	historial.addHistoria(add);
+	        	order++;
+	        	
+	        }else {
+	        	switch((result.comando()).name()) {
+	        		case "LIST" -> {
+	        			System.out.println((result.comando()).getDescription());
+	        			historial.listHistorial();
+	        			System.out.printf("\nRESULTADO ACTUAL: %.2f \n", historial.getResultadoActual());
+	        		}
+	        		case "RESET" -> {
+	        			System.out.println((result.comando()).getDescription());
+	        			historial.deleteHistorial();
+	        		}
+	        		case "RESULT" -> {
+	        			System.out.println(((result.comando()).getDescription()).concat(String.valueOf(historial.getResultadoActual())));
+	        		}
+	        		case "QUIT" -> System.out.println("¡Hasta la próxima!");
+	        		case "ERROR" -> System.out.println("Introduzca algo válido.");
+	        	}
+	        }
+	        System.out.println("");
+	        
+        }while((result.comando()).name() != "QUIT");
     }
 }
